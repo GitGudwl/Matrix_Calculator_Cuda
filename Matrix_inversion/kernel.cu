@@ -46,19 +46,19 @@ int main() {
         cout << "\nEnter the second filename: ";
         cin >> filename2;
         matrix_read(M, n, filename2.c_str());
-        matrixMultiplicationCuda(L, M, result, n);
+        matrixMultiplicationCuda(L, M, result, n,blocksize);
         break;
     case 3:
         cout << "\nEnter the second filename: ";
         cin >> filename2;
         matrix_read(M, n, filename2.c_str());
-        matrixSubtractionCuda(L, M, result, n);
+        matrixSubtractionCuda(L, M, result, n,blocksize);
         break;
     case 4:
         cout << "\nEnter the second filename: ";
         cin >> filename2;
         matrix_read(M, n, filename2.c_str());
-        matrixDivisionCuda(L, M, result, n);
+        matrixDivisionCuda(L, M, result, n,blocksize);
         break;
 	case 5:
         matrixInverseCUDA(L, result, n, blocksize);
