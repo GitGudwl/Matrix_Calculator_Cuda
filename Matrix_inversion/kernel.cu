@@ -2,7 +2,7 @@
 #include "MatrixCalculator.cuh"
 using namespace std;
 
-#define blocksize 128
+#define blocksize 8
 
 #include <iostream>
 #include <string>
