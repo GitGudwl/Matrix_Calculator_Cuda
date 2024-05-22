@@ -40,25 +40,25 @@ int main() {
 		cout << "\nEnter the second filename: ";
 		cin >> filename2;
         matrix_read(M, n, filename2.c_str());
-        matrixAddition(L, M, result, n);
+        matrixAdditionCuda(L, M, result, n,blocksize);
         break;
     case 2:
         cout << "\nEnter the second filename: ";
         cin >> filename2;
         matrix_read(M, n, filename2.c_str());
-        matrixMultiplication(L, M, result, n);
+        matrixMultiplicationCuda(L, M, result, n);
         break;
     case 3:
         cout << "\nEnter the second filename: ";
         cin >> filename2;
         matrix_read(M, n, filename2.c_str());
-        matrixSubtraction(L, M, result, n);
+        matrixSubtractionCuda(L, M, result, n);
         break;
     case 4:
         cout << "\nEnter the second filename: ";
         cin >> filename2;
         matrix_read(M, n, filename2.c_str());
-        matrixDivision(L, M, result, n);
+        matrixDivisionCuda(L, M, result, n);
         break;
 	case 5:
         matrixInverseCUDA(L, result, n, blocksize);

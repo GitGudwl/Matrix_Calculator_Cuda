@@ -81,7 +81,7 @@ __global__ void set_zero(double* A, double* I, int n, int i)
 }
 
 //addition of two matrices
-__global__ void matrixAddition(float* a, float* b, float* c, int n) {
+__global__ void matrixAddition(double* a, double* b, double* c, int n) {
     int row = blockIdx.y * blockDim.y + threadIdx.y;
     int col = blockIdx.x * blockDim.x + threadIdx.x;
 
@@ -92,7 +92,7 @@ __global__ void matrixAddition(float* a, float* b, float* c, int n) {
 }
 
 //Substract of two matrices
-__global__ void matrixSubstraction(float* a, float* b, float* c, int n) {
+__global__ void matrixSubstraction(double* a, double* b, double* c, int n) {
 	int row = blockIdx.y * blockDim.y + threadIdx.y;
 	int col = blockIdx.x * blockDim.x + threadIdx.x;
 
@@ -103,7 +103,7 @@ __global__ void matrixSubstraction(float* a, float* b, float* c, int n) {
 }
 
 //Multiplication of two matrices
-__global__ void matrixMultiplication(float* a, float* b, float* c, int n) {
+__global__ void matrixMultiplication(double* a, double* b, double* c, int n) {
 	int row = blockIdx.y * blockDim.y + threadIdx.y;
 	int col = blockIdx.x * blockDim.x + threadIdx.x;
 
@@ -117,7 +117,7 @@ __global__ void matrixMultiplication(float* a, float* b, float* c, int n) {
 }
 
 //Division of two matrices
-__global__ void matrixDivision(float* a, float* b, float* c, int n) {
+__global__ void matrixDivision(double* a, double* b, double* c, int n) {
 	int row = blockIdx.y * blockDim.y + threadIdx.y;
 	int col = blockIdx.x * blockDim.x + threadIdx.x;
 
