@@ -26,7 +26,6 @@ void matrix_read(double* L, int dimension, const char* filename)
 {
     FILE* fp;
     int row, col;
-    cout << filename;
 
     fp = fopen(filename, "r"); // open the file with the given filename
     if (fp == NULL)            // open failed

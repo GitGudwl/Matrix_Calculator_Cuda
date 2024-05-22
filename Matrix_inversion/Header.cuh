@@ -13,15 +13,7 @@
 #include <cuda_runtime.h>
 #include "utility.h"
 using namespace std;
-#define CHECK_CUDA_ERROR(call) \
-do { \
-    cudaError_t err = call; \
-    if (err != cudaSuccess) { \
-        std::cerr << "CUDA error in " << __FILE__ << " at line " << __LINE__ << ": " \
-                  << cudaGetErrorString(err) << " (" << err << ")" << std::endl; \
-        __debugbreak(); \
-    } \
-} while (0)
+
 
 // Normalize non-diagonal elements
 __global__ void nodiag_normalize(double* A, double* I, int n, int i)
@@ -99,89 +91,39 @@ __global__ void matrixAddition(float* a, float* b, float* c, int n) {
     }
 }
 
-void matrixInverseCUDA(double* L, double* iL, int n, int block) {
-    cout << "inv\n";
-    
-    double* d_A;
-    double* dI;
-    double* I;
-    float time;
-    cudaError_t err;
-    cudaEvent_t start, stop;
+//Substract of two matrices
+__global__ void matrixSubstraction(float* a, float* b, float* c, int n) {
+	int row = blockIdx.y * blockDim.y + threadIdx.y;
+	int col = blockIdx.x * blockDim.x + threadIdx.x;
 
-    CHECK_CUDA_ERROR(cudaEventCreate(&start));
-    CHECK_CUDA_ERROR(cudaEventCreate(&stop));
+	if (row < n && col < n) {
+		int index = row * n + col;
+		c[index] = a[index] - b[index];
+	}
+}
 
-    int ddsize = n * n * sizeof(double);
+//Multiplication of two matrices
+__global__ void matrixMultiplication(float* a, float* b, float* c, int n) {
+	int row = blockIdx.y * blockDim.y + threadIdx.y;
+	int col = blockIdx.x * blockDim.x + threadIdx.x;
 
-    dim3 threadsPerBlock(block, block);
-    dim3 numBlocks((n + block - 1) / block, (n + block - 1) / block);
+	if (row < n && col < n) {
+		float sum = 0;
+		for (int i = 0; i < n; i++) {
+			sum += a[row * n + i] * b[i * n + col];
+		}
+		c[row * n + col] = sum;
+	}
+}
 
-    // Memory allocation
-    err = cudaMalloc((void**)&d_A, ddsize);
-    if (err != cudaSuccess) {
-        cout << cudaGetErrorString(err) << " in " << __FILE__ << " at line " << __LINE__ << endl;
-    }
-    err = cudaMalloc((void**)&dI, ddsize);
-    if (err != cudaSuccess) {
-        cout << cudaGetErrorString(err) << " in " << __FILE__ << " at line " << __LINE__ << endl;
-    }
-    I = new double[n * n];
+//Division of two matrices
+__global__ void matrixDivision(float* a, float* b, float* c, int n) {
+	int row = blockIdx.y * blockDim.y + threadIdx.y;
+	int col = blockIdx.x * blockDim.x + threadIdx.x;
 
-    for (int i = 0; i < n; i++) {
-        for (int j = 0; j < n; j++) {
-            if (i == j)
-                I[i * n + i] = 1.0;
-            else
-                I[i * n + j] = 0.0;
-        }
-    }
-
-    // Copy data from CPU to GPU
-    err = cudaMemcpy(d_A, L, ddsize, cudaMemcpyHostToDevice);
-    if (err != cudaSuccess) {
-        cout << cudaGetErrorString(err) << " in " << __FILE__ << " at line " << __LINE__ << endl;
-    }
-    err = cudaMemcpy(dI, I, ddsize, cudaMemcpyHostToDevice);
-    if (err != cudaSuccess) {
-        cout << cudaGetErrorString(err) << " in " << __FILE__ << " at line " << __LINE__ << endl;
-    }
-
-    // Timer start
-    cudaEventRecord(start, 0);
-
-    // L^(-1)
-    for (int i = 0; i < n; i++) {
-        nodiag_normalize << <numBlocks, threadsPerBlock >> > (d_A, dI, n, i);
-        diag_normalize << <numBlocks, threadsPerBlock >> > (d_A, dI, n, i);
-        gaussjordan << <numBlocks, threadsPerBlock >> > (d_A, dI, n, i);
-        set_zero << <numBlocks, threadsPerBlock >> > (d_A, dI, n, i);
-    }
-
-    cudaEventRecord(stop, 0);
-    cudaEventSynchronize(stop);
-    cudaEventElapsedTime(&time, start, stop);
-    cudaEventDestroy(start);
-    cudaEventDestroy(stop);
-
-    // Copy data from GPU to CPU
-    err = cudaMemcpy(iL, dI, ddsize, cudaMemcpyDeviceToHost);
-    if (err != cudaSuccess) {
-        cout << cudaGetErrorString(err) << " in " << __FILE__ << " at line " << __LINE__ << endl;
-    }
-    err = cudaMemcpy(I, d_A, ddsize, cudaMemcpyDeviceToHost);
-    if (err != cudaSuccess) {
-        cout << cudaGetErrorString(err) << " in " << __FILE__ << " at line " << __LINE__ << endl;
-    }
-
-    cout << "Cuda Time - inverse: " << time << "ms\n";
-    savetofile(iL, "inv.txt", n, n);
-    savetofile(I, "I.txt", n, n);
-
-    cudaFree(d_A);
-    cudaFree(dI);
-
-    delete[] I;
+	if (row < n && col < n) {
+		c[row * n + col] = a[row * n + col] / b[row * n + col];
+	}
 }
 
 #endif // MATRIX_INVERSION_CUH
