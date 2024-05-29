@@ -1,1 +1,0 @@
-D:\Kuliah\Distributed System\Matrix-Inversion-with-CUDA-master\Matrix_inversion\Matrix_inversion\x64\Debug\NativeCodeAnalysis.read.1.tlog
