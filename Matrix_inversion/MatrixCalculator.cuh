@@ -15,11 +15,65 @@ do { \
 } while (0)
 
 void matrixMultiplicationCuda(double* matrix1, double* matrix2, double* result, int size, int block) {
-    // Implementation of matrix multiplication
+    cout << "multlipying Please Wait\n";
+    float time;
+
+    double* d_matrix1;
+    double* d_matrix2;
+    double* d_result;
+
+    cudaError_t err;
+    cudaEvent_t start, stop;
+
+    // Create CUDA events for timing
+    CHECK_CUDA_ERROR(cudaEventCreate(&start));
+    CHECK_CUDA_ERROR(cudaEventCreate(&stop));
+
+    // Allocate device memory
+    CHECK_CUDA_ERROR(cudaMalloc((void**)&d_matrix1, size * size * sizeof(double)));
+    CHECK_CUDA_ERROR(cudaMalloc((void**)&d_matrix2, size * size * sizeof(double)));
+    CHECK_CUDA_ERROR(cudaMalloc((void**)&d_result, size * size * sizeof(double)));
+
+    // Copy data from host to device
+    CHECK_CUDA_ERROR(cudaMemcpy(d_matrix1, matrix1, size * size * sizeof(double), cudaMemcpyHostToDevice));
+    CHECK_CUDA_ERROR(cudaMemcpy(d_matrix2, matrix2, size * size * sizeof(double), cudaMemcpyHostToDevice));
+
+    // Define grid and block dimensions
+    dim3 threadsPerBlock(block, block);
+    dim3 numBlocks((size + block - 1) / block, (size + block - 1) / block);
+
+    // Record the start event
+    CHECK_CUDA_ERROR(cudaEventRecord(start, 0));
+
+    // Launch the kernel
+    matrixMultiplication << <numBlocks, threadsPerBlock >> > (d_matrix1, d_matrix2, d_result, size);
+
+    // Record the stop event
+    CHECK_CUDA_ERROR(cudaEventRecord(stop, 0));
+    CHECK_CUDA_ERROR(cudaEventSynchronize(stop));
+
+    // Calculate the elapsed time
+    CHECK_CUDA_ERROR(cudaEventElapsedTime(&time, start, stop));
+    cout << "Time to Multiply 2 matrices: " << time << " ms\n";
+
+    // Copy the result back to the host
+    CHECK_CUDA_ERROR(cudaMemcpy(result, d_result, size * size * sizeof(double), cudaMemcpyDeviceToHost));
+
+    // Free device memory
+    CHECK_CUDA_ERROR(cudaFree(d_matrix1));
+    CHECK_CUDA_ERROR(cudaFree(d_matrix2));
+    CHECK_CUDA_ERROR(cudaFree(d_result));
+
+    // Destroy CUDA events
+    CHECK_CUDA_ERROR(cudaEventDestroy(start));
+    CHECK_CUDA_ERROR(cudaEventDestroy(stop));
+    // print the result
+    savetofile(result, "multiplication.csv", size, size);
+    //print the result
 }
 
 void matrixSubtractionCuda(double* matrix1, double* matrix2, double* result, int size, int block) {
-    cout << "Substract Please Wait\n";
+    cout << "Substracting Please Wait\n";
     float time;
 
     double* d_matrix1;

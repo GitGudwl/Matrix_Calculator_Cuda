@@ -20,7 +20,7 @@ int main() {
     double* L = new double[n * n];
     double* M = new double[n * n];
 
-    cout << "Enter the filename (content of the file suppose to be csv or txt seperated by comma): ";
+    cout << "Enter the filename :\n (content of the file suppose to be csv or txt seperated by comma)";
     cin >> filename;
 
     matrix_read(L, n, filename.c_str());
