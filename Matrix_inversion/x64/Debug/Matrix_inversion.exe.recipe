@@ -2,7 +2,7 @@
 <Project>
   <ProjectOutputs>
     <ProjectOutput>
-      <FullPath>E:\Kuliah\S6\Sistem Terdistribusi\TuBes\Matrix_Calculator_Cuda\x64\Debug\Matrix_inversion.exe</FullPath>
+      <FullPath>D:\Kuliah\Distributed System\Matrix-Inversion-with-CUDA-master\Matrix_inversion\x64\Debug\Matrix_inversion.exe</FullPath>
     </ProjectOutput>
   </ProjectOutputs>
   <ContentFiles />

@@ -14,9 +14,6 @@ do { \
     } \
 } while (0)
 
-
-
-
 void matrixMultiplicationCuda(double* matrix1, double* matrix2, double* result, int size, int block) {
     // Implementation of matrix multiplication
 }
@@ -75,7 +72,7 @@ void matrixSubtractionCuda(double* matrix1, double* matrix2, double* result, int
     CHECK_CUDA_ERROR(cudaEventDestroy(start));
     CHECK_CUDA_ERROR(cudaEventDestroy(stop));
     // print the result
-    savetofile(result, "Substract.txt", size, size);
+    savetofile(result, "Substract.csv", size, size);
     //print the result
 
 }
@@ -138,7 +135,7 @@ void matrixAdditionCuda(double* matrix1, double* matrix2, double* result, int si
     CHECK_CUDA_ERROR(cudaEventDestroy(start));
     CHECK_CUDA_ERROR(cudaEventDestroy(stop));
 	// print the result
-	savetofile(result, "add.txt", size, size);
+	savetofile(result, "add.csv", size, size);
 	//print the result
 
 }
@@ -219,8 +216,7 @@ void matrixInverseCUDA(double* L, double* iL, int n, int block) {
     }
 
     cout << "Cuda Time - inverse: " << time << "ms\n";
-    savetofile(iL, "inv.txt", n, n);
-    savetofile(I, "I.txt", n, n);
+    savetofile(iL, "inv.csv", n, n);
 
     cudaFree(d_A);
     cudaFree(dI);
