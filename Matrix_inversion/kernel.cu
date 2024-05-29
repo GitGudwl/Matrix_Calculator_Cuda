@@ -20,7 +20,7 @@ int main() {
     double* L = new double[n * n];
     double* M = new double[n * n];
 
-    cout << "Enter the filename :\n (content of the file suppose to be csv or txt seperated by comma)";
+    cout << "Enter the filename :\n(content of the file suppose to be csv or txt seperated by comma)\n\nFileName :";
     cin >> filename;
 
     matrix_read(L, n, filename.c_str());
@@ -35,8 +35,9 @@ int main() {
 	cout << "Enter operation: ";
     cin >> operation;
 
-    cout << "\nEnter the second filename: ";
+    cout << "\nPlease enter the second filename: ";
     cout << "\n!Make sure that the second matrix is square matrix with same dimension\n\n\n";
+	cout << "Enter the filename :" ;
 
     switch (operation) {
     case 1:
