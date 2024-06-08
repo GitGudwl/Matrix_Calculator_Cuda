@@ -4,7 +4,9 @@
 #include <string>
 using namespace std;
 
+
 #define blocksize 8
+
 
 int main() {
     int n;
@@ -21,6 +23,7 @@ int main() {
         cin.ignore(numeric_limits<streamsize>::max(), '\n');
     }
 
+
     double* result = new double[n * n];
     double* L = new double[n * n];
     double* M = new double[n * n];
@@ -36,7 +39,7 @@ int main() {
     cout << "1. Addition\n";
     cout << "2. Multiplication\n";
     cout << "3. Subtraction\n";
-    cout << "4. Division\n";
+    cout << "4. Determinant\n";
     cout << "5. Inversion\n";
     cout << "Enter your choice (1-5): ";
     while (!(cin >> operation) || operation < 1 || operation > 5) {
@@ -46,7 +49,7 @@ int main() {
     }
 
     // Input second matrix filename if necessary
-    if (operation != 5) {
+    if (operation <4) {
         cout << "\nPlease enter the filename of the second matrix (CSV or TXT format, separated by commas): ";
         cout << "\nMake sure that the second matrix is a square matrix with the same dimensions.\n";
         cin >> filename2;
@@ -68,8 +71,8 @@ int main() {
         cout << "Matrix subtraction completed.\n";
         break;
     case 4:
-        matrixDivisionCuda(L, M, result, n, blocksize);
-        cout << "Matrix division completed.\n";
+        matrixDeterminantCuda(L,result, n, blocksize);
+        cout << "Matrix Determinant Calculation completed.\n";
         break;
     case 5:
         matrixInverseCUDA(L, result, n, blocksize);

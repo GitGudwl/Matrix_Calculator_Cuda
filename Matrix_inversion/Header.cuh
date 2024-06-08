@@ -125,5 +125,72 @@ __global__ void matrixDivision(double* a, double* b, double* c, int n) {
 		c[row * n + col] = a[row * n + col] / b[row * n + col];
 	}
 }
+// LU Decomposition kernel
+__global__ void luDecomposition(double* A, int n, int* pivots, int* error)
+{
+	int tid = blockIdx.x * blockDim.x + threadIdx.x;
+
+	if (tid < n)
+	{
+		pivots[tid] = tid;
+	}
+
+	for (int i = 0; i < n; ++i)
+	{
+		if (tid < i)
+		{
+			continue;
+		}
+
+		if (A[i * n + i] == 0)
+		{
+			*error = 1; // Set error flag
+			return;
+		}
+
+		for (int j = i + 1; j < n; ++j)
+		{
+			if (tid < j)
+			{
+				A[j * n + i] /= A[i * n + i];
+			}
+
+			__syncthreads();
+
+			if (tid < j)
+			{
+				for (int k = i + 1; k < n; ++k)
+				{
+					A[j * n + k] -= A[j * n + i] * A[i * n + k];
+				}
+			}
+		}
+	}
+}
+
+// Determinant calculation kernel
+__global__ void determinant(double* A, int n, int* pivots, double* result)
+{
+	if (blockIdx.x == 0 && threadIdx.x == 0)
+	{
+		*result = 1.0;
+
+		for (int i = 0; i < n; ++i)
+		{
+			*result *= A[i * n + i];
+		}
+
+		// Account for row swaps
+		for (int i = 0; i < n; ++i)
+		{
+			if (pivots[i] != i)
+			{
+				*result *= -1.0;
+			}
+		}
+	}
+}
+
+
 
 #endif // MATRIX_INVERSION_CUH

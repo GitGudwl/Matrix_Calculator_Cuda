@@ -246,6 +246,79 @@ void matrixAdditionCuda(double* matrix1, double* matrix2, double* result, int si
 
 }
 
+void matrixDeterminantCuda(double* matrix, double* result, int size, int block) {
+    cout << "Calculating Determinant, Please Wait\n";
+    float time;
+
+    double* d_matrix;
+    int* d_pivots;
+    int* d_error;
+    double* d_result;
+
+    cudaError_t err;
+    cudaEvent_t start, stop;
+
+    // Create CUDA events for timing
+    CHECK_CUDA_ERROR(cudaEventCreate(&start));
+    CHECK_CUDA_ERROR(cudaEventCreate(&stop));
+
+    // Allocate device memory
+    CHECK_CUDA_ERROR(cudaMalloc((void**)&d_matrix, size * size * sizeof(double)));
+    CHECK_CUDA_ERROR(cudaMalloc((void**)&d_pivots, size * sizeof(int)));
+    CHECK_CUDA_ERROR(cudaMalloc((void**)&d_error, sizeof(int)));
+    CHECK_CUDA_ERROR(cudaMalloc((void**)&d_result, sizeof(double)));
+
+    // Copy data from host to device
+    CHECK_CUDA_ERROR(cudaMemcpy(d_matrix, matrix, size * size * sizeof(double), cudaMemcpyHostToDevice));
+
+    // Define grid and block dimensions
+    dim3 threadsPerBlock(block, block);
+    dim3 numBlocks((size + block - 1) / block, 1);
+
+    // Record the start event
+    CHECK_CUDA_ERROR(cudaEventRecord(start, 0));
+
+    // Launch the LU Decomposition kernel
+    luDecomposition << <numBlocks, threadsPerBlock >> > (d_matrix, size, d_pivots, d_error);
+    CHECK_CUDA_ERROR(cudaGetLastError());
+
+    // Check for LU decomposition errors
+    int error;
+    CHECK_CUDA_ERROR(cudaMemcpy(&error, d_error, sizeof(int), cudaMemcpyDeviceToHost));
+    if (error)
+    {
+        std::cerr << "Error: Singular matrix encountered." << std::endl;
+        exit(EXIT_FAILURE);
+    }
+
+    // Launch determinant calculation kernel
+    determinant << <1, 1 >> > (d_matrix, size, d_pivots, d_result);
+    CHECK_CUDA_ERROR(cudaGetLastError());
+
+    // Record the stop event
+    CHECK_CUDA_ERROR(cudaEventRecord(stop, 0));
+    CHECK_CUDA_ERROR(cudaEventSynchronize(stop));
+
+    // Calculate the elapsed time
+    CHECK_CUDA_ERROR(cudaEventElapsedTime(&time, start, stop));
+    cout << "Time to calculate determinant: " << time << " ms\n";
+
+    // Copy the result back to the host
+    CHECK_CUDA_ERROR(cudaMemcpy(result, d_result, sizeof(double), cudaMemcpyDeviceToHost));
+
+    // Free device memory
+    CHECK_CUDA_ERROR(cudaFree(d_matrix));
+    CHECK_CUDA_ERROR(cudaFree(d_pivots));
+    CHECK_CUDA_ERROR(cudaFree(d_error));
+    CHECK_CUDA_ERROR(cudaFree(d_result));
+
+    // Destroy CUDA events
+    CHECK_CUDA_ERROR(cudaEventDestroy(start));
+    CHECK_CUDA_ERROR(cudaEventDestroy(stop));
+
+	cout << "Determinant: " << *result << std::endl;
+}
+
 void matrixInverseCUDA(double* L, double* iL, int n, int block) {
     cout << "Inversing Please Wait\n";
 
